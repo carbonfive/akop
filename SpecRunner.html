@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head ng-app>
+    <title>Jasmine Spec Runner</title>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="vendor/jasmine-1.3.1/jasmine_favicon.png">
+    <link rel="stylesheet" type="text/css" href="vendor/jasmine-1.3.1/jasmine.css">
+
+    <!-- lib -->
+    <script type="text/javascript" src="vendor/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="vendor/underscore-1.5.1.min.js"></script>
+    <script type="text/javascript" src="vendor/coffee-script-1.6.3.min.js"></script>
+    <script type="text/javascript" src="vendor/angular-1.0.7.js"></script>
+    <script type="text/javascript" src="vendor/jasmine-1.3.1/jasmine.js"></script>
+    <script type="text/javascript" src="vendor/jasmine-1.3.1/jasmine-html.js"></script>
+
+    <!-- test support -->
+    <script type="text/javascript" src="spec/support/angular-mocks.js"></script>
+    <script type="text/javascript" src="spec/support/jasmine-jquery.js"></script>
+    <script type="text/javascript" src="spec/support/rosie.js"></script>
+
+    <script type="text/javascript" src="lib/akop.js"></script>
+    <script type="text/javascript" src="spec/lib/akop_specs.js"></script>
+
+    <script type="text/coffeescript">
+        $ ->
+            jasmineEnv = jasmine.getEnv()
+            jasmineEnv.updateInterval = 1000
+            htmlReporter = new jasmine.HtmlReporter()
+            jasmineEnv.addReporter htmlReporter
+            jasmineEnv.specFilter = (spec) ->
+                htmlReporter.specFilter spec
+
+            jasmineEnv.execute()
+    </script>
+
+
+</head>
+<body>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html ng-app="akop">
+<head>
+    <script src="../vendor/underscore-1.5.1.min.js"></script>
+    <script src="../vendor/jquery-2.0.3.min.js"></script>
+    <script src="../vendor/angular-1.0.7.js"></script>
+    <script src="../lib/akop.min.js"></script>
+
+    <style type="text/css">
+        .selected {
+            background-color: #cfcfcf;
+        }
+
+        *:focus {
+            outline: solid gray 1px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        ul li {
+            margin-left: 0;
+            padding: 2px 10px;
+        }
+    </style>
+
+    <script type="text/javascript">
+        function ListController($scope) {
+            $scope.items = [
+                {name: 'George Read'},
+                {name: 'Caesar Rodney'},
+                {name: 'Thomas McKean'},
+                {name: 'George Taylor'},
+                {name: 'James Smith'},
+                {name: 'James Wilson'},
+                {name: 'George Ross'}
+            ]
+        }
+    </script>
+</head>
+<body>
+<h1>MultiSelect Demo</h1>
+<p>Press <strong>tab</strong> to focus on list. Then use the following hotkeys to manipulate the selection:
+    <strong>up</strong>, <strong>down</strong>, <strong>shift-up</strong>,
+    <strong>shift-down</strong>, <strong>alt-up</strong>, <strong>alt-down</strong></p>
+<div ng-controller="ListController" akop-multi-select="{items: items}" tabindex="1">
+    <ul>
+        <li ng-repeat="item in items" ng-class="{selected: item.selected}" ng-bind="item.name"></li>
+    </ul>
+</div>
+</body>
+</html>
