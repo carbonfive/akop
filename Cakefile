@@ -8,6 +8,8 @@ appFiles = [
   'multi_select/module'
   'multi_select/multi_select'
   'multi_select/multi_select_directive'
+  'query_filter/module'
+  'query_filter/query_filter'
 ]
 
 specFiles = [
@@ -15,6 +17,7 @@ specFiles = [
   'keypress_utils_spec'
   'multi_select/multi_select_spec'
   'multi_select/multi_select_directive_spec'
+  'query_filter/query_filter_spec'
 ]
 
 task 'build', 'Build single application file from source files', ->
@@ -51,7 +54,12 @@ task 'build:specs', 'Build single spec file', ->
           throw err if err
           console.log 'Done.'
 
+task 'spec', 'Build source and spec files and launch spec runner in a browser', ->
+  exec 'cake build build:specs'
+  exec 'open SpecRunner.html'
+
 task 'minify', 'Minify the resulting application file after build', ->
-  exec 'java -jar "../../Tools/compiler.jar" --js lib/akop.js --js_output_file lib/akop.min.js', (err, stdout, stderr) ->
+  # TODO: add param for path to compiler (google js minifier)
+  exec 'java -jar "../../tools/compiler.jar" --js lib/akop.js --js_output_file lib/akop.min.js', (err, stdout, stderr) ->
     throw err if err
     console.log stdout + stderr

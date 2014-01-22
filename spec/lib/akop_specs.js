@@ -403,4 +403,116 @@
     });
   });
 
+  describe('QueryFilter', function() {
+    beforeEach(module('akop-query-filter', function() {}));
+    beforeEach(inject(function($filter) {
+      this.filter = $filter('query');
+      return this.list = [
+        {
+          id: 1,
+          name: 'Workit',
+          fk_id: 1
+        }, {
+          id: 2,
+          name: 'Fandroo',
+          fk_id: 1
+        }, {
+          id: 3,
+          name: 'Lendry',
+          fk_id: 2
+        }, {
+          id: 4,
+          name: 'Workit',
+          fk_id: 2
+        }
+      ];
+    }));
+    describe('with no arguments', function() {
+      return it('returns the whole list', function() {
+        return expect(this.filter(this.list, {})).toEqual(this.list);
+      });
+    });
+    describe('when querying on an attribute', function() {
+      beforeEach(function() {
+        return this.filtered = this.filter(this.list, {
+          fk_id: 1
+        });
+      });
+      it('returns all matching list items', function() {
+        return expect(this.filtered.length).toBe(2);
+      });
+      return it('returns only matching list items', function() {
+        var result, _i, _len, _ref, _results;
+        _ref = this.filtered;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          result = _ref[_i];
+          _results.push(expect(result.fk_id).toBe(1));
+        }
+        return _results;
+      });
+    });
+    describe('when querying by multiple attrs', function() {
+      beforeEach(function() {
+        return this.filtered = this.filter(this.list, {
+          name: 'Workit',
+          fk_id: 1
+        });
+      });
+      it('returns all matching list items', function() {
+        return expect(this.filtered.length).toBe(1);
+      });
+      return it('returns only matching list items', function() {
+        return expect(this.filtered[0]).toEqual(this.list[0]);
+      });
+    });
+    describe('when expression includes a group_by attribute', function() {
+      describe('and the list has the given attribute', function() {
+        beforeEach(function() {
+          return this.filtered = this.filter(this.list, {
+            group_by: 'name'
+          });
+        });
+        it('has top level keys for the given group_by attr', function() {
+          var key, keys, val;
+          keys = (function() {
+            var _ref, _results;
+            _ref = this.filtered;
+            _results = [];
+            for (key in _ref) {
+              val = _ref[key];
+              _results.push(key);
+            }
+            return _results;
+          }).call(this);
+          return expect(keys).toEqual(['Workit', 'Fandroo', 'Lendry']);
+        });
+        return it('has matching list members', function() {
+          return expect(this.filtered['Workit']).toEqual([this.list[0], this.list[3]]);
+        });
+      });
+      return describe('and the list members do not have the given attribute', function() {
+        return it('throws an error', function() {
+          var _this = this;
+          return expect(function() {
+            return _this.filter(_this.list, {
+              group_by: 'xyz'
+            });
+          }).toThrow(new Error("serviceQueryFilter: Missing group_by property \"xyz\" for some or all elements in list."));
+        });
+      });
+    });
+    return describe("when expression includes multiple values for a given attribute", function() {
+      return it('returns all matching items', function() {
+        var results;
+        results = this.filter(this.list, {
+          id: [1, 2]
+        });
+        expect(results.length).toEqual(2);
+        expect(results.indexOf(this.list[0])).not.toBe(-1);
+        return expect(results.indexOf(this.list[1])).not.toBe(-1);
+      });
+    });
+  });
+
 }).call(this);
