@@ -1,0 +1,58 @@
+<!doctype html>
+<html ng-app="akop">
+<head>
+  <script src="../vendor/underscore-1.5.1.min.js"></script>
+  <script src="../vendor/jquery-2.0.3.min.js"></script>
+  <script src="../vendor/angular-1.0.7.js"></script>
+  <script src="../lib/akop.min.js"></script>
+
+  <style type="text/css">
+    input {
+      width: 400px;
+    }
+  </style>
+
+  <script type="text/javascript">
+    function Dude(name, age, occupation) {
+      this.name       = name;
+      this.age        = age;
+      this.occupation = occupation;
+    }
+
+    function DudesController($scope) {
+      $scope.dudes = [
+        new Dude('George',  24, 'Software Developer'),
+        new Dude('James',   35, 'Politician'),
+        new Dude('Travis',  26, 'Software Developer'),
+        new Dude('Ken',     26, 'Soccer Coach'),
+        new Dude('Billy',   28, 'Retail Manager')
+      ]
+
+      $scope.queryText = ""
+    }
+  </script>
+</head>
+<body>
+<h1>Query Filter Demo</h1>
+
+<div ng-controller="DudesController">
+  <input ng-model="queryText">
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Occupation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="dude in dudes | akopQuery:queryText">
+        <td ng-bind="dude.name"></td>
+        <td ng-bind="dude.age"></td>
+        <td ng-bind="dude.occupation"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>
