@@ -2,7 +2,7 @@ describe 'QueryFilter', ->
   beforeEach module 'akop-query-filter', ->
 
   beforeEach inject ($filter) ->
-    @filter = $filter('query')
+    @filter = $filter('akop-query')
 
     @list = [
       {id: 1, name: 'Workit',  fk_id: 1},
