@@ -55,10 +55,10 @@ describe 'QueryFilter', ->
 
   describe "when expression includes multiple values for a given attribute", ->
     it 'returns all matching items', ->
-      results = @filter @list, id: [1, 2]
-      expect(results.length).toEqual 2
-      expect(results.indexOf @list[0]).not.toBe -1
-      expect(results.indexOf @list[1]).not.toBe -1
+      filtered = @filter @list, id: [1, 2]
+      expect(filtered.length).toEqual 2
+      expect(filtered.indexOf @list[0]).not.toBe -1
+      expect(filtered.indexOf @list[1]).not.toBe -1
 
   describe "when given a string for an argument", ->
     it 'works the same as if given an object', ->
