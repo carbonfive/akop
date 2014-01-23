@@ -406,7 +406,7 @@
   describe('QueryFilter', function() {
     beforeEach(module('akop-query-filter', function() {}));
     beforeEach(inject(function($filter) {
-      this.filter = $filter('query');
+      this.filter = $filter('akop-query');
       return this.list = [
         {
           id: 1,
@@ -502,15 +502,75 @@
         });
       });
     });
-    return describe("when expression includes multiple values for a given attribute", function() {
+    describe("when expression includes multiple values for a given attribute", function() {
       return it('returns all matching items', function() {
-        var results;
-        results = this.filter(this.list, {
+        var filtered;
+        filtered = this.filter(this.list, {
           id: [1, 2]
         });
-        expect(results.length).toEqual(2);
-        expect(results.indexOf(this.list[0])).not.toBe(-1);
-        return expect(results.indexOf(this.list[1])).not.toBe(-1);
+        expect(filtered.length).toEqual(2);
+        expect(filtered.indexOf(this.list[0])).not.toBe(-1);
+        return expect(filtered.indexOf(this.list[1])).not.toBe(-1);
+      });
+    });
+    return describe("when given a string for an argument", function() {
+      return it('works the same as if given an object', function() {
+        var filtered;
+        filtered = this.filter(this.list, "fk_id:1");
+        return expect(filtered.length).toBe(2);
+      });
+    });
+  });
+
+  describe('QueryParser', function() {
+    beforeEach(module('akop-query-filter', function() {}));
+    beforeEach(inject(function(akopParser) {
+      this.akopParser = akopParser;
+    }));
+    describe('parse', function() {
+      return describe('given an object', function() {
+        return it('returns the object', function() {
+          var o;
+          o = {
+            name: 'Jasmine'
+          };
+          return expect(this.akopParser(o)).toBe(o);
+        });
+      });
+    });
+    describe('given a string with no : separator', function() {
+      return it('returns the string', function() {
+        var exp;
+        exp = 'some string';
+        return expect(this.akopParser(exp)).toBe(exp);
+      });
+    });
+    describe('given a string with : separator', function() {
+      return it('returns an object', function() {
+        var exp;
+        exp = 'ay:bee see:dee';
+        return expect(this.akopParser(exp)).toEqual({
+          ay: "bee",
+          see: "dee"
+        });
+      });
+    });
+    describe('given a string with an array value', function() {
+      return it('returns the value as an array of string', function() {
+        var exp;
+        exp = 'a:[1,two]';
+        return expect(this.akopParser(exp)).toEqual({
+          a: ["1", "two"]
+        });
+      });
+    });
+    return describe('given a quoted string with', function() {
+      return it('returns the value as expected', function() {
+        var exp;
+        exp = 'name:"Joe Blow"';
+        return expect(this.akopParser(exp)).toEqual({
+          name: "Joe Blow"
+        });
       });
     });
   });
