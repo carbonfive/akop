@@ -59,3 +59,8 @@ describe 'QueryFilter', ->
       expect(results.length).toEqual 2
       expect(results.indexOf @list[0]).not.toBe -1
       expect(results.indexOf @list[1]).not.toBe -1
+
+  describe "when given a string for an argument", ->
+    it 'works the same as if given an object', ->
+      filtered = @filter @list, "fk_id:1"
+      expect(filtered.length).toBe 2

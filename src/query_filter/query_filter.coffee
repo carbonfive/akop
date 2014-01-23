@@ -1,5 +1,7 @@
-queryFilter = ($filter) ->
+queryFilter = ($filter, parse) ->
   (list, expression) ->
+    expression = parse(expression)
+
     group_by = expression.group_by
     delete expression.group_by
 
@@ -29,5 +31,5 @@ queryFilter = ($filter) ->
       throw new Error("serviceQueryFilter: Missing group_by property \"#{group_by}\" for some or all elements in list.")
     _.groupBy(results, group_by)
 
-queryFilter.$inject = ['$filter']
 angular.module('akop-query-filter').filter 'query', queryFilter
+queryFilter.$inject = ['$filter', 'akopParser']
