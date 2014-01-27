@@ -6,11 +6,7 @@
   <script src="../vendor/angular-1.0.7.js"></script>
   <script src="../lib/akop.min.js"></script>
 
-  <style type="text/css">
-    input {
-      width: 400px;
-    }
-  </style>
+  <link type="text/css" href="styles.css" rel="stylesheet"/>
 
   <script type="text/javascript">
     function Dude(name, age, occupation) {
@@ -24,35 +20,76 @@
         new Dude('George',  24, 'Software Developer'),
         new Dude('James',   35, 'Politician'),
         new Dude('Travis',  26, 'Software Developer'),
+        new Dude('Trent',   27, 'Software Developer'),
         new Dude('Ken',     26, 'Soccer Coach'),
         new Dude('Billy',   28, 'Retail Manager')
       ]
 
       $scope.queryText = ""
+
+      $scope.exampleQueries = [
+        "age:26",
+        "age:26 occupation:So",
+        "age:26 occupation:Soccer",
+        "occupation:\"Software Developer\"",
+        "age:[24,26] occupation:\"Software Developer\""
+      ];
+
+      $scope.setQuery = function(query) {
+        $scope.queryText = query;
+      }
     }
   </script>
 </head>
 <body>
-<h1>Query Filter Demo</h1>
 
-<div ng-controller="DudesController">
-  <input ng-model="queryText">
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Age</th>
-        <th>Occupation</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr ng-repeat="dude in dudes | akopQuery:queryText">
-        <td ng-bind="dude.name"></td>
-        <td ng-bind="dude.age"></td>
-        <td ng-bind="dude.occupation"></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+<article ng-controller="DudesController">
+  <h1>Query Filter Demo</h1>
+  <p>The query filter provides an enhanced interface for filtering collections.</p>
+
+  <section>
+    <h3>Filter on property</h3>
+    <p>You can narrow your filtering to search only specified properties. For example "age:26".</p>
+
+    <h3>Accept multiple values</h3>
+    <p>You can specify multiple values for a given property. For example "name:[James,Travis]"</p>
+
+    <h3>It can be used in your controllers/services too</h3>
+    <code>
+      $filter('akopQuery')($scope.someArray, {foo:"bar"})
+    </code>
+  </section>
+
+  <section>
+    <header>
+      <h2>Examples</h2>
+    </header>
+
+    <p>Click to try the following queries.</p>
+    <ul>
+      <li ng-repeat="query in exampleQueries" ng-click="setQuery(query)"><code ng-bind="query"></code></li>
+    </ul>
+  </section>
+
+  <section>
+    <input ng-model="queryText">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Age</th>
+          <th>Occupation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="dude in dudes | akopQuery:queryText">
+          <td ng-bind="dude.name"></td>
+          <td ng-bind="dude.age"></td>
+          <td ng-bind="dude.occupation"></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</article>
 </body>
 </html>

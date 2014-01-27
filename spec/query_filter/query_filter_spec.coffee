@@ -2,13 +2,15 @@ describe 'QueryFilter', ->
   beforeEach module 'akop-query-filter', ->
 
   beforeEach inject ($filter) ->
-    @filter = $filter('akop-query')
+    @filter = $filter('akopQuery')
 
     @list = [
       {id: 1, name: 'Workit',  fk_id: 1},
       {id: 2, name: 'Fandroo', fk_id: 1},
       {id: 3, name: 'Lendry',  fk_id: 2},
       {id: 4, name: 'Workit',  fk_id: 2},
+      {id: 5, name: 'Hypstr',  fk_id: 2},
+      {id: 6, name: 'Toosly',  fk_id: 3},
     ]
 
   describe 'with no arguments', ->
@@ -42,7 +44,7 @@ describe 'QueryFilter', ->
 
       it 'has top level keys for the given group_by attr', ->
         keys = (key for key, val of @filtered)
-        expect(keys).toEqual ['Workit', 'Fandroo', 'Lendry']
+        expect(keys).toEqual ['Workit', 'Fandroo', 'Lendry', 'Hypstr', 'Toosly']
 
       it 'has matching list members', ->
         expect(@filtered['Workit']).toEqual [@list[0], @list[3]]
@@ -60,7 +62,22 @@ describe 'QueryFilter', ->
       expect(filtered.indexOf @list[0]).not.toBe -1
       expect(filtered.indexOf @list[1]).not.toBe -1
 
+  describe "when given multiple values for multiple attributes", ->
+    it 'returns all matching items', ->
+      filtered = @filter @list, id: [1,2], fk_id: [1,2]
+      expect(filtered.length).toBe 5
+
+  describe "when given multiple attributes and multiple values", ->
+    it 'returns only matching items', ->
+      filtered = @filter @list, id: [1,2], name: 'Workit'
+      expect(filtered.length).toBe 1
+
   describe "when given a string for an argument", ->
     it 'works the same as if given an object', ->
       filtered = @filter @list, "fk_id:1"
       expect(filtered.length).toBe 2
+
+  describe "when given an array value with no matching elements", ->
+    it 'returns an empty array', ->
+      filtered = @filter @list, id: [7]
+      expect(filtered.length).toBe 0

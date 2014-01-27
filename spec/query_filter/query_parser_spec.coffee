@@ -24,7 +24,12 @@ describe 'QueryParser', ->
       exp = 'a:[1,two]'
       expect(@akopParser(exp)).toEqual { a: ["1", "two"] }
 
-  describe 'given a quoted string with', ->
+  describe 'given a quoted string', ->
     it 'returns the value as expected', ->
       exp = 'name:"Joe Blow"'
       expect(@akopParser(exp)).toEqual {name: "Joe Blow"}
+
+  describe 'given a quoted string in an array value', ->
+    it 'returns the value as expected', ->
+      exp = 'a:[1,two,"three times three"]'
+      expect(@akopParser(exp)).toEqual { a: ["1", "two", "three times three"]}

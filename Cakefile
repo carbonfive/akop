@@ -11,6 +11,7 @@ appFiles = [
   'query_filter/module'
   'query_filter/query_filter'
   'query_filter/query_parser'
+  'query_filter/expression_utils'
 ]
 
 specFiles = [
@@ -20,6 +21,7 @@ specFiles = [
   'multi_select/multi_select_directive_spec'
   'query_filter/query_filter_spec'
   'query_filter/query_parser_spec'
+  'query_filter/expression_utils_spec'
 ]
 
 task 'build', 'Build single application file from source files', ->
