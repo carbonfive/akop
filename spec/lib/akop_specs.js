@@ -403,4 +403,266 @@
     });
   });
 
+  describe('QueryFilter', function() {
+    beforeEach(module('akop-query-filter', function() {}));
+    beforeEach(inject(function($filter) {
+      this.filter = $filter('akopQuery');
+      return this.list = [
+        {
+          id: 1,
+          name: 'Workit',
+          fk_id: 1
+        }, {
+          id: 2,
+          name: 'Fandroo',
+          fk_id: 1
+        }, {
+          id: 3,
+          name: 'Lendry',
+          fk_id: 2
+        }, {
+          id: 4,
+          name: 'Workit',
+          fk_id: 2
+        }, {
+          id: 5,
+          name: 'Hypstr',
+          fk_id: 2
+        }, {
+          id: 6,
+          name: 'Toosly',
+          fk_id: 3
+        }
+      ];
+    }));
+    describe('with no arguments', function() {
+      return it('returns the whole list', function() {
+        return expect(this.filter(this.list, {})).toEqual(this.list);
+      });
+    });
+    describe('when querying on an attribute', function() {
+      beforeEach(function() {
+        return this.filtered = this.filter(this.list, {
+          fk_id: 1
+        });
+      });
+      it('returns all matching list items', function() {
+        return expect(this.filtered.length).toBe(2);
+      });
+      return it('returns only matching list items', function() {
+        var result, _i, _len, _ref, _results;
+        _ref = this.filtered;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          result = _ref[_i];
+          _results.push(expect(result.fk_id).toBe(1));
+        }
+        return _results;
+      });
+    });
+    describe('when querying by multiple attrs', function() {
+      beforeEach(function() {
+        return this.filtered = this.filter(this.list, {
+          name: 'Workit',
+          fk_id: 1
+        });
+      });
+      it('returns all matching list items', function() {
+        return expect(this.filtered.length).toBe(1);
+      });
+      return it('returns only matching list items', function() {
+        return expect(this.filtered[0]).toEqual(this.list[0]);
+      });
+    });
+    describe('when expression includes a group_by attribute', function() {
+      describe('and the list has the given attribute', function() {
+        beforeEach(function() {
+          return this.filtered = this.filter(this.list, {
+            group_by: 'name'
+          });
+        });
+        it('has top level keys for the given group_by attr', function() {
+          var key, keys, val;
+          keys = (function() {
+            var _ref, _results;
+            _ref = this.filtered;
+            _results = [];
+            for (key in _ref) {
+              val = _ref[key];
+              _results.push(key);
+            }
+            return _results;
+          }).call(this);
+          return expect(keys).toEqual(['Workit', 'Fandroo', 'Lendry', 'Hypstr', 'Toosly']);
+        });
+        return it('has matching list members', function() {
+          return expect(this.filtered['Workit']).toEqual([this.list[0], this.list[3]]);
+        });
+      });
+      return describe('and the list members do not have the given attribute', function() {
+        return it('throws an error', function() {
+          var _this = this;
+          return expect(function() {
+            return _this.filter(_this.list, {
+              group_by: 'xyz'
+            });
+          }).toThrow(new Error("serviceQueryFilter: Missing group_by property \"xyz\" for some or all elements in list."));
+        });
+      });
+    });
+    describe("when expression includes multiple values for a given attribute", function() {
+      return it('returns all matching items', function() {
+        var filtered;
+        filtered = this.filter(this.list, {
+          id: [1, 2]
+        });
+        expect(filtered.length).toEqual(2);
+        expect(filtered.indexOf(this.list[0])).not.toBe(-1);
+        return expect(filtered.indexOf(this.list[1])).not.toBe(-1);
+      });
+    });
+    describe("when given multiple values for multiple attributes", function() {
+      return it('returns all matching items', function() {
+        var filtered;
+        filtered = this.filter(this.list, {
+          id: [1, 2],
+          fk_id: [1, 2]
+        });
+        return expect(filtered.length).toBe(5);
+      });
+    });
+    describe("when given multiple attributes and multiple values", function() {
+      return it('returns only matching items', function() {
+        var filtered;
+        filtered = this.filter(this.list, {
+          id: [1, 2],
+          name: 'Workit'
+        });
+        return expect(filtered.length).toBe(1);
+      });
+    });
+    describe("when given a string for an argument", function() {
+      return it('works the same as if given an object', function() {
+        var filtered;
+        filtered = this.filter(this.list, "fk_id:1");
+        return expect(filtered.length).toBe(2);
+      });
+    });
+    return describe("when given an array value with no matching elements", function() {
+      return it('returns an empty array', function() {
+        var filtered;
+        filtered = this.filter(this.list, {
+          id: [7]
+        });
+        return expect(filtered.length).toBe(0);
+      });
+    });
+  });
+
+  describe('QueryParser', function() {
+    beforeEach(module('akop-query-filter', function() {}));
+    beforeEach(inject(function(akopParser) {
+      this.akopParser = akopParser;
+    }));
+    describe('parse', function() {
+      return describe('given an object', function() {
+        return it('returns the object', function() {
+          var o;
+          o = {
+            name: 'Jasmine'
+          };
+          return expect(this.akopParser(o)).toBe(o);
+        });
+      });
+    });
+    describe('given a string with no : separator', function() {
+      return it('returns the string', function() {
+        var exp;
+        exp = 'some string';
+        return expect(this.akopParser(exp)).toBe(exp);
+      });
+    });
+    describe('given a string with : separator', function() {
+      return it('returns an object', function() {
+        var exp;
+        exp = 'ay:bee see:dee';
+        return expect(this.akopParser(exp)).toEqual({
+          ay: "bee",
+          see: "dee"
+        });
+      });
+    });
+    describe('given a string with an array value', function() {
+      return it('returns the value as an array of string', function() {
+        var exp;
+        exp = 'a:[1,two]';
+        return expect(this.akopParser(exp)).toEqual({
+          a: ["1", "two"]
+        });
+      });
+    });
+    describe('given a quoted string', function() {
+      return it('returns the value as expected', function() {
+        var exp;
+        exp = 'name:"Joe Blow"';
+        return expect(this.akopParser(exp)).toEqual({
+          name: "Joe Blow"
+        });
+      });
+    });
+    return describe('given a quoted string in an array value', function() {
+      return it('returns the value as expected', function() {
+        var exp;
+        exp = 'a:[1,two,"three times three"]';
+        return expect(this.akopParser(exp)).toEqual({
+          a: ["1", "two", "three times three"]
+        });
+      });
+    });
+  });
+
+  describe('expressionUtils', function() {
+    beforeEach(module('akop-query-filter'));
+    beforeEach(inject([
+      'expressionUtils', function(utils) {
+        this.utils = utils;
+      }
+    ]));
+    describe('getArrayArguments', function() {
+      return it('returns the arguments as an array of objects with attr and arg values', function() {
+        var exp;
+        exp = {
+          a: 1,
+          b: [1, 2, 3],
+          c: "hello"
+        };
+        return expect(this.utils.getArrayArguments(exp)).toEqual([
+          {
+            attr: 'b',
+            arg: [1, 2, 3]
+          }
+        ]);
+      });
+    });
+    return describe('arrayArgsToExpressions', function() {
+      return it('does shit', function() {
+        var exp;
+        exp = {
+          a: 1,
+          b: [1, 2, 3],
+          c: "hello"
+        };
+        return expect(this.utils.arrayArgsToExpressions(exp)).toEqual([
+          {
+            b: 1
+          }, {
+            b: 2
+          }, {
+            b: 3
+          }
+        ]);
+      });
+    });
+  });
+
 }).call(this);
