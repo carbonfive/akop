@@ -8,10 +8,14 @@ appFiles = [
   'multi_select/module'
   'multi_select/multi_select'
   'multi_select/multi_select_directive'
-  'query_filter/module'
-  'query_filter/query_filter'
-  'query_filter/query_parser'
-  'query_filter/expression_utils'
+  'filters/float/module'
+  'filters/float/float_filter'
+  'filters/query/module'
+  'filters/query/query_filter'
+  'filters/query/query_parser'
+  'filters/query/expression_utils'
+  'filters/temperature/module'
+  'filters/temperature/temperature_filter'
 ]
 
 specFiles = [
@@ -19,9 +23,11 @@ specFiles = [
   'keypress_utils_spec'
   'multi_select/multi_select_spec'
   'multi_select/multi_select_directive_spec'
-  'query_filter/query_filter_spec'
-  'query_filter/query_parser_spec'
-  'query_filter/expression_utils_spec'
+  'filters/float/float_filter_spec'
+  'filters/query/query_filter_spec'
+  'filters/query/query_parser_spec'
+  'filters/query/expression_utils_spec'
+  'filters/temperature/temperature_filter_spec'
 ]
 
 task 'build', 'Build single application file from source files', ->
