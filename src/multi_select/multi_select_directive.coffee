@@ -1,19 +1,16 @@
 multiSelectDirective = (KeymapUtils, MultiSelect, $parse) ->
   restrict: 'A'
   link: ($scope, el, attrs) ->
-    opts = $parse(attrs['akopMultiSelect'])($scope) || {}
+    $scope.$watch attrs['akopMultiSelect'], (items) ->
+      $scope.multiSelect = new MultiSelect(items || [])
 
-    $scope.multiSelect = new MultiSelect(opts.items)
-    $scope.keymap ||= {}
-
-    _.extend($scope.keymap, opts.keymap, {
+    $scope.keymap =
       'up': -> $scope.multiSelect.selectPrev()
       'down': -> $scope.multiSelect.selectNext()
       'shift-up': -> $scope.multiSelect.moveToPrev()
       'shift-down': -> $scope.multiSelect.moveToNext()
       'alt-down': -> $scope.multiSelect.selectLast()
       'alt-up': -> $scope.multiSelect.selectFirst()
-    })
 
     el.bind 'keydown', (e) ->
       for combo, funct of $scope.keymap

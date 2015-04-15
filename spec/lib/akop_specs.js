@@ -335,140 +335,93 @@
 
   describe('MultiSelectDirective', function() {
     describe('link', function() {
-      beforeEach(function() {
-        this.mockMultiSelect = jasmine.createSpy('MultiSelect');
-        module('akop', (function(_this) {
-          return function($provide) {
-            $provide.value('MultiSelect', _this.mockMultiSelect);
-            return null;
-          };
-        })(this));
-        return inject((function(_this) {
-          return function($rootScope, $compile) {
-            _this.$rootScope = $rootScope;
-            _this.$compile = $compile;
-            _this.scope = _this.$rootScope.$new();
-            return _this.compile = function(markup, scope) {
-              var el;
-              el = this.$compile(markup)(scope);
-              scope.$digest();
-              return el;
-            };
-          };
-        })(this));
-      });
-      it('creates a new multiselect from items', function() {
-        this.scope.some_collection = [
+      beforeEach(module('akop', function($provide) {
+        $provide.value('MultiSelect', jasmine.createSpy('MultiSelect'));
+        return null;
+      }));
+      beforeEach(inject(function($rootScope, $compile) {
+        this.scope = $rootScope.$new();
+        this.el = $compile('<ul akop-multi-select="items"></ul>')(this.scope);
+        return $rootScope.$digest();
+      }));
+      return it('creates a new MultiSelect from Items', inject(function(MultiSelect, $rootScope) {
+        this.scope.items = [
           {
-            a: 'a'
+            id: '1'
           }, {
-            b: 'b'
+            id: '2'
           }
         ];
-        this.compile('<ul akop-multi-select="{items: some_collection}"></ul>', this.scope);
-        return expect(this.mockMultiSelect).toHaveBeenCalledWith(this.scope.some_collection);
-      });
-      it('accepts a keymap and sets it on scope.keymap', function() {
-        this.scope.my_keymap = {
-          'shift-n': 'somefunction'
-        };
-        this.compile('<ul akop-multi-select="{keymap: my_keymap}"></ul>', this.scope);
-        return expect(this.scope.keymap['shift-n']).toEqual('somefunction');
-      });
-      it('merges with existing keymap', function() {
-        this.scope.keymap = {
-          'shift-n': 'existing'
-        };
-        this.scope.some_other_keymap = {
-          'shift-e': 'passed in'
-        };
-        this.compile('<ul akop-multi-select="{keymap: some_other_keymap}"></ul>', this.scope);
-        this.expect(this.scope.keymap['shift-n']).toEqual('existing');
-        return this.expect(this.scope.keymap['shift-e']).toEqual('passed in');
-      });
-      return it('adds multiselect hotkeys to keymap', function() {
-        var combo, _i, _len, _ref, _results;
-        this.compile('<ul akop-multi-select="{keymap: some_other_keymap}"></ul>', this.scope);
-        _ref = ['up', 'down', 'shift-up', 'shift-down', 'alt-down', 'alt-up'];
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          combo = _ref[_i];
-          _results.push(expect(this.scope.keymap[combo]).toBeDefined());
-        }
-        return _results;
-      });
+        $rootScope.$digest();
+        return expect(MultiSelect).toHaveBeenCalledWith(this.scope.items);
+      }));
     });
-    return describe('keydown interactions', function() {
-      beforeEach(function() {
-        module('akop');
-        return inject((function(_this) {
-          return function($rootScope, $compile) {
-            _this.$rootScope = $rootScope;
-            _this.$compile = $compile;
-            _this.scope = _this.$rootScope.$new();
-            _this.scope.items = [{}, {}, {}, {}, {}];
-            _this.el = _this.$compile('<ul akop-multi-select="{items: items}"></ul>')(_this.scope);
-            return _this.scope.$digest();
-          };
-        })(this));
-      });
-      it('listens for up', function() {
-        var up;
-        spyOn(this.scope.multiSelect, 'selectPrev');
-        up = Factory.build('event', {
-          keyCode: 38
+    return describe('interactions', function() {
+      beforeEach(module('akop'));
+      beforeEach(inject(function($rootScope, $compile) {
+        this.scope = $rootScope.$new();
+        this.el = $compile('<ul akop-multi-select="items"><li ng-repeat="item in items">{{item.id}}</li></ul>')(this.scope);
+        return this.scope.$digest();
+      }));
+      return describe('keydown interactions', function() {
+        it('listens for up', function() {
+          var up;
+          spyOn(this.scope.multiSelect, 'selectPrev');
+          up = Factory.build('event', {
+            keyCode: 38
+          });
+          this.el.trigger(up);
+          return expect(this.scope.multiSelect.selectPrev).toHaveBeenCalled();
         });
-        this.el.trigger(up);
-        return expect(this.scope.multiSelect.selectPrev).toHaveBeenCalled();
-      });
-      it('listens for down', function() {
-        var down;
-        spyOn(this.scope.multiSelect, 'selectNext');
-        down = Factory.build('event', {
-          keyCode: 40
+        it('listens for down', function() {
+          var down;
+          spyOn(this.scope.multiSelect, 'selectNext');
+          down = Factory.build('event', {
+            keyCode: 40
+          });
+          this.el.trigger(down);
+          return expect(this.scope.multiSelect.selectNext).toHaveBeenCalled();
         });
-        this.el.trigger(down);
-        return expect(this.scope.multiSelect.selectNext).toHaveBeenCalled();
-      });
-      it('listens for shift-up', function() {
-        var shiftUp;
-        spyOn(this.scope.multiSelect, 'moveToPrev');
-        shiftUp = Factory.build('event', {
-          keyCode: 38,
-          shiftKey: true
+        it('listens for shift-up', function() {
+          var shiftUp;
+          spyOn(this.scope.multiSelect, 'moveToPrev');
+          shiftUp = Factory.build('event', {
+            keyCode: 38,
+            shiftKey: true
+          });
+          this.el.trigger(shiftUp);
+          return expect(this.scope.multiSelect.moveToPrev).toHaveBeenCalled();
         });
-        this.el.trigger(shiftUp);
-        return expect(this.scope.multiSelect.moveToPrev).toHaveBeenCalled();
-      });
-      it('listens for shift-down', function() {
-        var shiftDown;
-        spyOn(this.scope.multiSelect, 'moveToNext');
-        shiftDown = Factory.build('event', {
-          keyCode: 40,
-          shiftKey: true
+        it('listens for shift-down', function() {
+          var shiftDown;
+          spyOn(this.scope.multiSelect, 'moveToNext');
+          shiftDown = Factory.build('event', {
+            keyCode: 40,
+            shiftKey: true
+          });
+          this.el.trigger(shiftDown);
+          return expect(this.scope.multiSelect.moveToNext).toHaveBeenCalled();
         });
-        this.el.trigger(shiftDown);
-        return expect(this.scope.multiSelect.moveToNext).toHaveBeenCalled();
-      });
-      it('listens for alt-up', function() {
-        var altUp;
-        spyOn(this.scope.multiSelect, 'selectFirst');
-        altUp = Factory.build('event', {
-          keyCode: 38,
-          altKey: true
+        it('listens for alt-up', function() {
+          var altUp;
+          spyOn(this.scope.multiSelect, 'selectFirst');
+          altUp = Factory.build('event', {
+            keyCode: 38,
+            altKey: true
+          });
+          this.el.trigger(altUp);
+          return expect(this.scope.multiSelect.selectFirst).toHaveBeenCalled();
         });
-        this.el.trigger(altUp);
-        return expect(this.scope.multiSelect.selectFirst).toHaveBeenCalled();
-      });
-      return it('listens for alt-down', function() {
-        var altDown;
-        spyOn(this.scope.multiSelect, 'selectLast');
-        altDown = Factory.build('event', {
-          keyCode: 40,
-          altKey: true
+        return it('listens for alt-down', function() {
+          var altDown;
+          spyOn(this.scope.multiSelect, 'selectLast');
+          altDown = Factory.build('event', {
+            keyCode: 40,
+            altKey: true
+          });
+          this.el.trigger(altDown);
+          return expect(this.scope.multiSelect.selectLast).toHaveBeenCalled();
         });
-        this.el.trigger(altDown);
-        return expect(this.scope.multiSelect.selectLast).toHaveBeenCalled();
       });
     });
   });
