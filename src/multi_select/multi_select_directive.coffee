@@ -13,9 +13,11 @@ multiSelectDirective = (KeymapUtils, MultiSelect, $parse) ->
       'alt-up': -> $scope.multiSelect.selectFirst()
 
     el.bind 'keydown', (e) ->
-      for combo, funct of $scope.keymap
-        $scope.$apply ->
-          funct.call() if KeymapUtils.comboEventMatch(combo, e)
+      $scope.$apply ->
+        for combo, funct of $scope.keymap
+          if KeymapUtils.comboEventMatch(combo, e)
+            e.preventDefault()
+            funct.call()
 
 multiSelectDirective.$inject = ['KeymapUtils', 'MultiSelect', '$parse']
 angular.module('akop-multi-select').directive 'akopMultiSelect', multiSelectDirective
