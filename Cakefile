@@ -64,6 +64,6 @@ task 'spec', 'Build source and spec files and launch spec runner in a browser', 
 
 task 'minify', 'Minify the resulting application file after build', ->
   # TODO: add param for path to compiler (google js minifier)
-  exec 'java -jar "../../tools/compiler.jar" --js lib/akop.js --js_output_file lib/akop.min.js', (err, stdout, stderr) ->
+  exec 'java -jar "vendor/compiler/compiler.jar" --js lib/akop.js --js_output_file lib/akop.min.js', (err, stdout, stderr) ->
     throw err if err
     console.log stdout + stderr

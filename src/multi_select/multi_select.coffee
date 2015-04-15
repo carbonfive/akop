@@ -3,7 +3,7 @@ class MultiSelect
     @reset @root if @root
 
   reset: (@root) ->
-    _.each @list, (el) -> el.selected = false
+    _.each @list, (el) -> el.selected = false; return
     @selected = []
     @include(@root, false)
 
