@@ -412,7 +412,7 @@
           this.el.trigger(altUp);
           return expect(this.scope.multiSelect.selectFirst).toHaveBeenCalled();
         });
-        return it('listens for alt-down', function() {
+        it('listens for alt-down', function() {
           var altDown;
           spyOn(this.scope.multiSelect, 'selectLast');
           altDown = Factory.build('event', {
@@ -421,6 +421,15 @@
           });
           this.el.trigger(altDown);
           return expect(this.scope.multiSelect.selectLast).toHaveBeenCalled();
+        });
+        return it('listens for esc', function() {
+          var esc;
+          spyOn(this.scope.multiSelect, 'reset');
+          esc = Factory.build('event', {
+            keyCode: 27
+          });
+          this.el.trigger(esc);
+          return expect(this.scope.multiSelect.reset).toHaveBeenCalled();
         });
       });
     });

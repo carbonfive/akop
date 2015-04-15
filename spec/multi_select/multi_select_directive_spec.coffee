@@ -58,3 +58,9 @@ describe 'MultiSelectDirective', ->
         altDown = Factory.build('event', {keyCode: 40, altKey: true})
         @el.trigger(altDown)
         expect(@scope.multiSelect.selectLast).toHaveBeenCalled()
+
+      it 'listens for esc', ->
+        spyOn(@scope.multiSelect, 'reset')
+        esc = Factory.build('event', {keyCode: 27})
+        @el.trigger(esc)
+        expect(@scope.multiSelect.reset).toHaveBeenCalled()

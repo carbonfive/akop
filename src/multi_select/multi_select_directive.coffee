@@ -11,6 +11,7 @@ multiSelectDirective = (KeymapUtils, MultiSelect, $parse) ->
       'shift-down': -> $scope.multiSelect.moveToNext()
       'alt-down': -> $scope.multiSelect.selectLast()
       'alt-up': -> $scope.multiSelect.selectFirst()
+      'esc': -> $scope.multiSelect.reset()
 
     el.bind 'keydown', (e) ->
       $scope.$apply ->
