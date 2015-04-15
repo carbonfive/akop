@@ -132,6 +132,22 @@ describe 'MultiSelect', ->
       @multi.include(@item4)
       expect(@multi.exclude @item3).toBe false
 
+    describe 'for non-adjacent elements', ->
+      beforeEach ->
+        @item1 = @list[1]
+        @multi.reset(@item1)
+        @multi.include(@item4)
+        @selected = @multi.exclude(@item4, false)
+
+      it 'sets the selected property of the passed element to false', ->
+        expect(@item4.selected).toBe false
+
+      it 'removes the passed element from selected', ->
+        expect(@multi.selected.indexOf @item4).toEqual -1
+
+      it 'sets the cursor to the next closest selected element', ->
+        expect(@multi.cursor).toEqual @selected.indexOf(@item1)
+
   describe 'reset with item', ->
     beforeEach ->
       @item4 = @list[4]

@@ -27,18 +27,22 @@ class MultiSelect
       @reset(el)
     @selected
 
-  exclude: (el) ->
+  exclude: (el, enforce_adjacency = true) ->
     pos = @_pos(el)
-    is_upper = @_is_upper(pos)
-    is_lower = @_is_lower(pos)
-    return false unless is_upper or is_lower
-    el.selected = false
-    if is_upper
-      @selected.pop()
-      @cursor = @_upper_index()
+    if enforce_adjacency
+      is_upper = @_is_upper(pos)
+      is_lower = @_is_lower(pos)
+      return false unless is_upper or is_lower
+      if is_upper
+        @selected.pop()
+        @cursor = @_upper_index()
+      else
+        @selected.splice(@_lower_index(), 1, undefined)
+        @cursor = @_lower_index()
     else
-      @selected.splice(@_lower_index(), 1, undefined)
-      @cursor = @_lower_index()
+      @selected.splice(pos, 1, undefined)
+      @cursor = @_closest_selected_index(pos)
+    el.selected = false
     @selected
 
   moveCursorTo: (index) ->
@@ -73,6 +77,21 @@ class MultiSelect
 
   moveToNext: =>
     @moveCursorTo(@cursor + 1)
+
+  _closest_selected_index: (idx, distance = 1) ->
+    high = idx + distance
+    low = idx - distance
+    return false if low < 0 and high > @list.length - 1
+
+    if high <= @list.length - 1
+      nextSib = @list[high]
+      return high if nextSib.selected
+
+    if low >= 0
+      prevSib = @list[low]
+      return low if prevSib.selected
+
+    return @_closest_selected_index(idx, distance + 1)
 
   _is_asc: (current_idx, prev_idx) ->
     current_idx - prev_idx == 1

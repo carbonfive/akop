@@ -205,9 +205,26 @@
       it('sets the cursor to the next adjacent selected element', function() {
         return expect(this.multi.cursor).toEqual(this.selected.indexOf(this.item3));
       });
-      return it('returns false if passed an element this is not on the outer bounds of selected', function() {
+      it('returns false if passed an element this is not on the outer bounds of selected', function() {
         this.multi.include(this.item4);
         return expect(this.multi.exclude(this.item3)).toBe(false);
+      });
+      return describe('for non-adjacent elements', function() {
+        beforeEach(function() {
+          this.item1 = this.list[1];
+          this.multi.reset(this.item1);
+          this.multi.include(this.item4);
+          return this.selected = this.multi.exclude(this.item4, false);
+        });
+        it('sets the selected property of the passed element to false', function() {
+          return expect(this.item4.selected).toBe(false);
+        });
+        it('removes the passed element from selected', function() {
+          return expect(this.multi.selected.indexOf(this.item4)).toEqual(-1);
+        });
+        return it('sets the cursor to the next closest selected element', function() {
+          return expect(this.multi.cursor).toEqual(this.selected.indexOf(this.item1));
+        });
       });
     });
     describe('reset with item', function() {
