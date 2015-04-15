@@ -190,6 +190,13 @@
         return expect(this.root.selected).toBe(false);
       });
     });
+    describe('reset without item', function() {
+      return it('excludes all items', function() {
+        expect(this.multi.selected).toEqual([void 0, void 0, this.root]);
+        this.multi.reset();
+        return expect(this.multi.selected).toEqual([]);
+      });
+    });
     describe('moveCursorTo', function() {
       it('selects element under cursor if it is not selected', function() {
         var item;

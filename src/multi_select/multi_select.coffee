@@ -2,10 +2,11 @@ class MultiSelect
   constructor: (@list, @root) ->
     @reset @root if @root
 
-  reset: (@root) ->
+  reset: (@root = null) ->
     _.each @list, (el) -> el.selected = false; return
     @selected = []
-    @include(@root, false)
+    @include(@root, false) if @root
+    @selected
 
   include: (el, enforce_adjacency = true) ->
     pos = @_pos(el)

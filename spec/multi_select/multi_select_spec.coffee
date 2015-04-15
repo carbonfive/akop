@@ -116,6 +116,12 @@ describe 'MultiSelect', ->
     it 'sets the selected property of all other elements to false', ->
       expect(@root.selected).toBe false
 
+  describe 'reset without item', ->
+    it 'excludes all items', ->
+      expect(@multi.selected).toEqual [undefined, undefined, @root]
+      @multi.reset()
+      expect(@multi.selected).toEqual []
+
   describe 'moveCursorTo', ->
 
     it 'selects element under cursor if it is not selected', ->
