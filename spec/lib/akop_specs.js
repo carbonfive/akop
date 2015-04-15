@@ -147,6 +147,44 @@
         return expect(this.multi.include(item)).toEqual([void 0, item, this.root, this.item]);
       });
     });
+    describe('includeUntil', function() {
+      describe('given an element with a higher index than the cursor', function() {
+        beforeEach(function() {
+          this.multi.reset(this.list[2]);
+          return this.multi.includeUntil(this.list[6]);
+        });
+        return it('selects all elements with an index between the cursor and the given element', function() {
+          return expect(this.multi.selected).toSelect(this.list, 2, 3, 4, 5, 6);
+        });
+      });
+      describe('given an element with a lower index than the cursor', function() {
+        beforeEach(function() {
+          this.multi.reset(this.list[5]);
+          return this.multi.includeUntil(this.list[1]);
+        });
+        return it('selects all elements with an index between the cursor and the given element', function() {
+          return expect(this.multi.selected).toSelect(this.list, 1, 2, 3, 4, 5);
+        });
+      });
+      describe('given the element under the cursor', function() {
+        beforeEach(function() {
+          this.multi.reset(this.list[5]);
+          return this.multi.includeUntil(this.list[5]);
+        });
+        return it('keeps the element selected', function() {
+          return expect(this.multi.selected).toSelect(this.list, 5);
+        });
+      });
+      return describe('given a list without selected items', function() {
+        beforeEach(function() {
+          this.multi.reset();
+          return this.multi.includeUntil(this.list[3]);
+        });
+        return it('selects only the given element', function() {
+          return expect(this.multi.selected).toSelect(this.list, 3);
+        });
+      });
+    });
     describe('exclude', function() {
       beforeEach(function() {
         this.item3 = this.list[3];

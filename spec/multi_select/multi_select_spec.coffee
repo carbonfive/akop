@@ -75,6 +75,39 @@ describe 'MultiSelect', ->
       item = @list[1]
       expect(@multi.include item).toEqual [undefined, item, @root, @item]
 
+  describe 'includeUntil', ->
+    describe 'given an element with a higher index than the cursor', ->
+      beforeEach ->
+        @multi.reset(@list[2])
+        @multi.includeUntil @list[6]
+
+      it 'selects all elements with an index between the cursor and the given element', ->
+        expect(@multi.selected).toSelect @list, 2, 3, 4, 5, 6
+
+    describe 'given an element with a lower index than the cursor', ->
+      beforeEach ->
+        @multi.reset(@list[5])
+        @multi.includeUntil @list[1]
+
+      it 'selects all elements with an index between the cursor and the given element', ->
+        expect(@multi.selected).toSelect @list, 1, 2, 3, 4, 5
+
+    describe 'given the element under the cursor', ->
+      beforeEach ->
+        @multi.reset(@list[5])
+        @multi.includeUntil(@list[5])
+
+      it 'keeps the element selected', ->
+        expect(@multi.selected).toSelect @list, 5
+
+    describe 'given a list without selected items', ->
+      beforeEach ->
+        @multi.reset()
+        @multi.includeUntil(@list[3])
+
+      it 'selects only the given element', ->
+        expect(@multi.selected).toSelect @list, 3
+
   describe 'exclude', ->
     beforeEach ->
       @item3 = @list[3]

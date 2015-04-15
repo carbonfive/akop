@@ -17,6 +17,16 @@ class MultiSelect
     @cursor = pos
     @selected
 
+  includeUntil: (el) ->
+    if @selected.length
+      pos = @_pos(el)
+      cursor = @cursor
+      for i in [pos..cursor]
+        @include(@list[i], false)
+    else
+      @reset(el)
+    @selected
+
   exclude: (el) ->
     pos = @_pos(el)
     is_upper = @_is_upper(pos)
