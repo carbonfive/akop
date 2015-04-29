@@ -18,10 +18,17 @@ multiSelectDirective = (KeymapUtils, MultiSelect) ->
 
     el.bind 'keydown', (e) ->
       $scope.$apply ->
+        if e.shiftKey
+          $(el).addClass('akop-noselect')
         for combo, funct of $scope.keymap
           if KeymapUtils.comboEventMatch(combo, e)
             e.preventDefault()
             funct.call()
+
+    el.bind 'keyup', (e) ->
+      $scope.$apply ->
+        if e.shiftKey
+          $(el).removeClass('akop-noselect')
 
     el.bind 'click', (e) ->
       item = angular.element(e.target).scope()[$scope.selectableName]

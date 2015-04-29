@@ -368,7 +368,7 @@
           }
         ];
         this.scope.items = this.items;
-        this.el = $compile('<ul akop-multi-select="items" selectable-name="item"><li ng-repeat="item in items">{{item.id}}</li></ul>')(this.scope);
+        this.el = $compile('<ul akop-multi-select="items" selectable-name="item"> <li ng-repeat="item in items">{{item.id}}</li> </ul>')(this.scope);
         return $rootScope.$digest();
       }));
       describe('keydown', function() {
@@ -476,7 +476,7 @@
           $('li:last-child', this.el).trigger(metaClick);
           return expect(this.scope.multiSelect.exclude).toHaveBeenCalledWith(this.items[1], false);
         });
-        return it('selects with click', function() {
+        it('selects with click', function() {
           var click;
           spyOn(this.scope.multiSelect, 'reset');
           click = Factory.build('event', {
@@ -484,6 +484,29 @@
           });
           $('li:last-child', this.el).trigger(click);
           return expect(this.scope.multiSelect.reset).toHaveBeenCalledWith(this.items[1]);
+        });
+        it('suppresses text highlighting on shift down (for shift-click)', function() {
+          var shiftDown;
+          shiftDown = Factory.build('event', {
+            type: 'keydown',
+            shiftKey: true
+          });
+          $(this.el).trigger(shiftDown);
+          return expect($(this.el).hasClass('akop-noselect')).toBeTruthy();
+        });
+        return it('stop suppression of text highlighting on shift up', function() {
+          var shiftDown, shiftUp;
+          shiftDown = Factory.build('event', {
+            type: 'keydown',
+            shiftKey: true
+          });
+          shiftUp = Factory.build('event', {
+            type: 'keyup',
+            shiftKey: true
+          });
+          $(this.el).trigger(shiftDown);
+          $(this.el).trigger(shiftUp);
+          return expect($(this.el).hasClass('akop-noselect')).toBeFalsy();
         });
       });
     });
