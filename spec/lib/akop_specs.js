@@ -360,13 +360,14 @@
       beforeEach(module('akop'));
       beforeEach(inject(function($rootScope, $compile) {
         this.scope = $rootScope.$new();
-        this.scope.items = [
+        this.items = [
           {
             id: '1'
           }, {
             id: '2'
           }
         ];
+        this.scope.items = this.items;
         this.el = $compile('<ul akop-multi-select="items" selectable-name="item"><li ng-repeat="item in items">{{item.id}}</li></ul>')(this.scope);
         return $rootScope.$digest();
       }));
@@ -448,7 +449,7 @@
             shiftKey: true
           });
           $('li:last-child', this.el).trigger(shiftClick);
-          return expect(this.scope.multiSelect.includeUntil).toHaveBeenCalled();
+          return expect(this.scope.multiSelect.includeUntil).toHaveBeenCalledWith(this.items[1]);
         });
         it('selects unselected click-target with meta-click', function() {
           var metaClick;
@@ -458,9 +459,9 @@
             metaKey: true
           });
           $('li:last-child', this.el).trigger(metaClick);
-          return expect(this.scope.multiSelect.include).toHaveBeenCalled();
+          return expect(this.scope.multiSelect.include).toHaveBeenCalledWith(this.items[1], false);
         });
-        return it('deselects selected click-target with meta-click', function() {
+        it('deselects selected click-target with meta-click', function() {
           var metaClick;
           this.scope.$apply((function(_this) {
             return function() {
@@ -473,7 +474,16 @@
             metaKey: true
           });
           $('li:last-child', this.el).trigger(metaClick);
-          return expect(this.scope.multiSelect.exclude).toHaveBeenCalled();
+          return expect(this.scope.multiSelect.exclude).toHaveBeenCalledWith(this.items[1], false);
+        });
+        return it('selects with click', function() {
+          var click;
+          spyOn(this.scope.multiSelect, 'reset');
+          click = Factory.build('event', {
+            type: 'click'
+          });
+          $('li:last-child', this.el).trigger(click);
+          return expect(this.scope.multiSelect.reset).toHaveBeenCalledWith(this.items[1]);
         });
       });
     });

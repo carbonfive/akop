@@ -33,6 +33,8 @@ multiSelectDirective = (KeymapUtils, MultiSelect) ->
             $scope.multiSelect.exclude(item, false)
           else
             $scope.multiSelect.include(item, false)
+        else
+          $scope.multiSelect.reset(item)
 
 
 multiSelectDirective.$inject = ['KeymapUtils', 'MultiSelect']
