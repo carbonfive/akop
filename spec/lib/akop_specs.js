@@ -360,10 +360,17 @@
       beforeEach(module('akop'));
       beforeEach(inject(function($rootScope, $compile) {
         this.scope = $rootScope.$new();
-        this.el = $compile('<ul akop-multi-select="items"><li ng-repeat="item in items">{{item.id}}</li></ul>')(this.scope);
-        return this.scope.$digest();
+        this.scope.items = [
+          {
+            id: '1'
+          }, {
+            id: '2'
+          }
+        ];
+        this.el = $compile('<ul akop-multi-select="items" selectable-name="item"><li ng-repeat="item in items">{{item.id}}</li></ul>')(this.scope);
+        return $rootScope.$digest();
       }));
-      return describe('keydown interactions', function() {
+      describe('keydown', function() {
         it('listens for up', function() {
           var up;
           spyOn(this.scope.multiSelect, 'selectPrev');
@@ -430,6 +437,43 @@
           });
           this.el.trigger(esc);
           return expect(this.scope.multiSelect.reset).toHaveBeenCalled();
+        });
+      });
+      return describe('mouse', function() {
+        it('includes with shift-click', function() {
+          var shiftClick;
+          spyOn(this.scope.multiSelect, 'includeUntil');
+          shiftClick = Factory.build('event', {
+            type: 'click',
+            shiftKey: true
+          });
+          $('li:last-child', this.el).trigger(shiftClick);
+          return expect(this.scope.multiSelect.includeUntil).toHaveBeenCalled();
+        });
+        it('selects unselected click-target with meta-click', function() {
+          var metaClick;
+          spyOn(this.scope.multiSelect, 'include');
+          metaClick = Factory.build('event', {
+            type: 'click',
+            metaKey: true
+          });
+          $('li:last-child', this.el).trigger(metaClick);
+          return expect(this.scope.multiSelect.include).toHaveBeenCalled();
+        });
+        return it('deselects selected click-target with meta-click', function() {
+          var metaClick;
+          this.scope.$apply((function(_this) {
+            return function() {
+              return _this.scope.items[1].selected = true;
+            };
+          })(this));
+          spyOn(this.scope.multiSelect, 'exclude');
+          metaClick = Factory.build('event', {
+            type: 'click',
+            metaKey: true
+          });
+          $('li:last-child', this.el).trigger(metaClick);
+          return expect(this.scope.multiSelect.exclude).toHaveBeenCalled();
         });
       });
     });

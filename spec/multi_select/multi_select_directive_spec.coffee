@@ -18,11 +18,12 @@ describe 'MultiSelectDirective', ->
     beforeEach module 'akop'
     beforeEach inject ($rootScope, $compile) ->
       @scope = $rootScope.$new()
+      @scope.items = [{id: '1'}, {id: '2'}]
 
-      @el = $compile('<ul akop-multi-select="items"><li ng-repeat="item in items">{{item.id}}</li></ul>')(@scope)
-      @scope.$digest()
+      @el = $compile('<ul akop-multi-select="items" selectable-name="item"><li ng-repeat="item in items">{{item.id}}</li></ul>')(@scope)
+      $rootScope.$digest()
 
-    describe 'keydown interactions', ->
+    describe 'keydown', ->
       it 'listens for up', ->
         spyOn(@scope.multiSelect, 'selectPrev')
         up = Factory.build('event', {keyCode: 38})
@@ -64,3 +65,23 @@ describe 'MultiSelectDirective', ->
         esc = Factory.build('event', {keyCode: 27})
         @el.trigger(esc)
         expect(@scope.multiSelect.reset).toHaveBeenCalled()
+
+    describe 'mouse', ->
+      it 'includes with shift-click', ->
+        spyOn(@scope.multiSelect, 'includeUntil')
+        shiftClick = Factory.build('event', {type: 'click', shiftKey: true})
+        $('li:last-child', @el).trigger(shiftClick)
+        expect(@scope.multiSelect.includeUntil).toHaveBeenCalled()
+
+      it 'selects unselected click-target with meta-click', ->
+        spyOn(@scope.multiSelect, 'include')
+        metaClick = Factory.build('event', {type: 'click', metaKey: true})
+        $('li:last-child', @el).trigger(metaClick)
+        expect(@scope.multiSelect.include).toHaveBeenCalled()
+
+      it 'deselects selected click-target with meta-click', ->
+        @scope.$apply => @scope.items[1].selected = true
+        spyOn(@scope.multiSelect, 'exclude')
+        metaClick = Factory.build('event', {type: 'click', metaKey: true})
+        $('li:last-child', @el).trigger(metaClick)
+        expect(@scope.multiSelect.exclude).toHaveBeenCalled()
