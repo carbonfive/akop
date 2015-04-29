@@ -360,10 +360,18 @@
       beforeEach(module('akop'));
       beforeEach(inject(function($rootScope, $compile) {
         this.scope = $rootScope.$new();
-        this.el = $compile('<ul akop-multi-select="items"><li ng-repeat="item in items">{{item.id}}</li></ul>')(this.scope);
-        return this.scope.$digest();
+        this.items = [
+          {
+            id: '1'
+          }, {
+            id: '2'
+          }
+        ];
+        this.scope.items = this.items;
+        this.el = $compile('<ul akop-multi-select="items" selectable-name="item"> <li ng-repeat="item in items">{{item.id}}</li> </ul>')(this.scope);
+        return $rootScope.$digest();
       }));
-      return describe('keydown interactions', function() {
+      describe('keydown', function() {
         it('listens for up', function() {
           var up;
           spyOn(this.scope.multiSelect, 'selectPrev');
@@ -430,6 +438,75 @@
           });
           this.el.trigger(esc);
           return expect(this.scope.multiSelect.reset).toHaveBeenCalled();
+        });
+      });
+      return describe('mouse', function() {
+        it('includes with shift-click', function() {
+          var shiftClick;
+          spyOn(this.scope.multiSelect, 'includeUntil');
+          shiftClick = Factory.build('event', {
+            type: 'click',
+            shiftKey: true
+          });
+          $('li:last-child', this.el).trigger(shiftClick);
+          return expect(this.scope.multiSelect.includeUntil).toHaveBeenCalledWith(this.items[1]);
+        });
+        it('selects unselected click-target with meta-click', function() {
+          var metaClick;
+          spyOn(this.scope.multiSelect, 'include');
+          metaClick = Factory.build('event', {
+            type: 'click',
+            metaKey: true
+          });
+          $('li:last-child', this.el).trigger(metaClick);
+          return expect(this.scope.multiSelect.include).toHaveBeenCalledWith(this.items[1], false);
+        });
+        it('deselects selected click-target with meta-click', function() {
+          var metaClick;
+          this.scope.$apply((function(_this) {
+            return function() {
+              return _this.scope.items[1].selected = true;
+            };
+          })(this));
+          spyOn(this.scope.multiSelect, 'exclude');
+          metaClick = Factory.build('event', {
+            type: 'click',
+            metaKey: true
+          });
+          $('li:last-child', this.el).trigger(metaClick);
+          return expect(this.scope.multiSelect.exclude).toHaveBeenCalledWith(this.items[1], false);
+        });
+        it('selects with click', function() {
+          var click;
+          spyOn(this.scope.multiSelect, 'reset');
+          click = Factory.build('event', {
+            type: 'click'
+          });
+          $('li:last-child', this.el).trigger(click);
+          return expect(this.scope.multiSelect.reset).toHaveBeenCalledWith(this.items[1]);
+        });
+        it('suppresses text highlighting on shift down (for shift-click)', function() {
+          var shiftDown;
+          shiftDown = Factory.build('event', {
+            type: 'keydown',
+            shiftKey: true
+          });
+          $(this.el).trigger(shiftDown);
+          return expect($(this.el).hasClass('akop-noselect')).toBeTruthy();
+        });
+        return it('stop suppression of text highlighting on shift up', function() {
+          var shiftDown, shiftUp;
+          shiftDown = Factory.build('event', {
+            type: 'keydown',
+            shiftKey: true
+          });
+          shiftUp = Factory.build('event', {
+            type: 'keyup',
+            shiftKey: true
+          });
+          $(this.el).trigger(shiftDown);
+          $(this.el).trigger(shiftUp);
+          return expect($(this.el).hasClass('akop-noselect')).toBeFalsy();
         });
       });
     });
