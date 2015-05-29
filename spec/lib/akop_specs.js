@@ -147,6 +147,19 @@
         return expect(this.multi.include(item)).toEqual([void 0, item, this.root, this.item]);
       });
     });
+    describe('toggle', function() {
+      beforeEach(function() {
+        this.item = this.list[3];
+        return this.multi.include(this.item);
+      });
+      return it('toggles the selected state of the given item', function() {
+        expect(this.item.selected).toBe(true);
+        this.multi.toggle(this.item);
+        expect(this.item.selected).toBe(false);
+        this.multi.toggle(this.item);
+        return expect(this.item.selected).toBe(true);
+      });
+    });
     describe('includeUntil', function() {
       describe('given an element with a higher index than the cursor', function() {
         beforeEach(function() {

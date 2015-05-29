@@ -45,6 +45,12 @@ class MultiSelect
     el.selected = false
     @selected
 
+  toggle: (el) ->
+    if el.selected
+      @exclude(el, false)
+    else
+      @include(el, false)
+
   moveCursorTo: (index) ->
     return @selected if index < 0 or index > @list.length - 1
     el = @list[index]

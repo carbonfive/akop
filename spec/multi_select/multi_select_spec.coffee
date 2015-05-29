@@ -75,6 +75,21 @@ describe 'MultiSelect', ->
       item = @list[1]
       expect(@multi.include item).toEqual [undefined, item, @root, @item]
 
+  describe 'toggle', ->
+    beforeEach ->
+      @item = @list[3]
+      @multi.include(@item)
+
+    it 'toggles the selected state of the given item', ->
+      expect(@item.selected).toBe true
+
+      @multi.toggle(@item)
+      expect(@item.selected).toBe false
+
+      @multi.toggle(@item)
+      expect(@item.selected).toBe true
+
+
   describe 'includeUntil', ->
     describe 'given an element with a higher index than the cursor', ->
       beforeEach ->

@@ -16,6 +16,14 @@ multiSelectDirective = (KeymapUtils, MultiSelect) ->
       'alt-up': -> $scope.multiSelect.selectFirst()
       'esc': -> $scope.multiSelect.reset()
 
+    $scope.multiSelectClickHandler = (event, item) ->
+      if event.shiftKey
+        $scope.multiSelect.includeUntil(item)
+      else if event.metaKey
+        $scope.multiSelect.toggle(item)
+      else
+        $scope.multiSelect.reset(item)
+
     el.bind 'keydown', (e) ->
       $scope.$apply ->
         if e.shiftKey
@@ -32,17 +40,7 @@ multiSelectDirective = (KeymapUtils, MultiSelect) ->
 
     el.bind 'click', (e) ->
       item = angular.element(e.target).scope()[$scope.selectableName]
-      $scope.$apply ->
-        if e.shiftKey
-          $scope.multiSelect.includeUntil(item)
-        else if e.metaKey
-          if item.selected
-            $scope.multiSelect.exclude(item, false)
-          else
-            $scope.multiSelect.include(item, false)
-        else
-          $scope.multiSelect.reset(item)
-
+      $scope.$apply -> $scope.multiSelectClickHandler(e, item)
 
 multiSelectDirective.$inject = ['KeymapUtils', 'MultiSelect']
 angular.module('akop-multi-select').directive 'akopMultiSelect', multiSelectDirective
