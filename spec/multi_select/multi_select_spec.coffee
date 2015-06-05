@@ -1,20 +1,18 @@
+buildList = ->
+  [
+    { name: 'one'   }
+    { name: 'two'   }
+    { name: 'three' }
+    { name: 'four'  }
+    { name: 'five'  }
+    { name: 'six'   }
+    { name: 'seven' }
+  ]
+
 describe 'MultiSelect', ->
+  beforeEach module 'akop-multi-select'
 
   beforeEach ->
-    module 'akop-multi-select'
-    inject (@MultiSelect) =>
-      @list = [
-        { name: 'one'   }
-        { name: 'two'   }
-        { name: 'three' }
-        { name: 'four'  }
-        { name: 'five'  }
-        { name: 'six'   }
-        { name: 'seven' }
-      ]
-      @root = @list[2]
-      @multi = new @MultiSelect(@list, @root)
-
     @addMatchers
       toSelect: (list, element_indexes...) ->
         expected = []
@@ -22,26 +20,43 @@ describe 'MultiSelect', ->
         _.isEqual @actual, expected
 
   describe 'constructor', ->
-    it 'assigns root and list', ->
-      expect(@multi.root).toEqual(@root)
-      expect(@multi.list).toEqual(@list)
+    it 'assigns root and list', inject (MultiSelect) ->
+      list = buildList()
+      root = list[2]
+      multi = new MultiSelect(list, root)
+      expect(multi.root).toEqual(root)
+      expect(multi.list).toEqual(list)
 
-    it 'throws an error if root is not a member of list', ->
+    it 'throws an error if root is not a member of list', inject (MultiSelect) ->
       expect( => 
-          new @MultiSelect(@list, { name: 'one hundred' })
+          new MultiSelect(buildList(), { name: 'one hundred' })
       ).toThrow new Error('MultiSelect: Element must be a member of list.')
 
-    it 'sets the cursor to the position of root', ->
-      expect(@multi.cursor).toEqual @list.indexOf(@root)
+    it 'sets the cursor to the position of root', inject (MultiSelect) ->
+      list = buildList()
+      root = list[2]
+      multi = new MultiSelect(list, root)
+      expect(multi.cursor).toEqual list.indexOf(root)
 
-    it 'accepts a list with no root', ->
-      multi = new @MultiSelect(@list)
-      expect(multi.list).toEqual(@list)
+    it 'accepts a list with no root', inject (MultiSelect) ->
+      list = buildList()
+      multi = new MultiSelect(list)
+      expect(multi.list).toEqual(list)
       expect(multi.root).toBeUndefined()
       expect(multi.cursor).toBeUndefined()
 
+    describe 'when initialized with elements that have a selected property', ->
+      it 'adds selects the elements', inject (MultiSelect) ->
+        list = buildList()
+        list[1].selected = true
+        multi = new MultiSelect(list)
+        expect(multi.selected).toEqual [undefined,list[1]]
+
   describe 'include', ->
-    beforeEach ->
+    beforeEach inject (MultiSelect) ->
+      @list = buildList()
+      @root = @list[2]
+      @multi = new MultiSelect(@list, @root)
       @item = @list[3]
       @selected = @multi.include(@item)
 
@@ -76,7 +91,10 @@ describe 'MultiSelect', ->
       expect(@multi.include item).toEqual [undefined, item, @root, @item]
 
   describe 'toggle', ->
-    beforeEach ->
+    beforeEach inject (MultiSelect) ->
+      @list = buildList()
+      @root = @list[2]
+      @multi = new MultiSelect(@list, @root)
       @item = @list[3]
       @multi.include(@item)
 
@@ -92,31 +110,39 @@ describe 'MultiSelect', ->
 
   describe 'includeUntil', ->
     describe 'given an element with a higher index than the cursor', ->
-      beforeEach ->
-        @multi.reset(@list[2])
+      beforeEach inject (MultiSelect) ->
+        @list = buildList()
+        @root = @list[2]
+        @multi = new MultiSelect(@list, @root)
         @multi.includeUntil @list[6]
 
       it 'selects all elements with an index between the cursor and the given element', ->
         expect(@multi.selected).toSelect @list, 2, 3, 4, 5, 6
 
     describe 'given an element with a lower index than the cursor', ->
-      beforeEach ->
-        @multi.reset(@list[5])
+      beforeEach inject (MultiSelect) ->
+        @list = buildList()
+        @root = @list[5]
+        @multi = new MultiSelect(@list, @root)
         @multi.includeUntil @list[1]
 
       it 'selects all elements with an index between the cursor and the given element', ->
         expect(@multi.selected).toSelect @list, 1, 2, 3, 4, 5
 
     describe 'given the element under the cursor', ->
-      beforeEach ->
-        @multi.reset(@list[5])
+      beforeEach inject (MultiSelect) ->
+        @list = buildList()
+        @root = @list[5]
+        @multi = new MultiSelect(@list, @root)
         @multi.includeUntil(@list[5])
 
       it 'keeps the element selected', ->
         expect(@multi.selected).toSelect @list, 5
 
     describe 'given a list without selected items', ->
-      beforeEach ->
+      beforeEach inject (MultiSelect) ->
+        @list = buildList()
+        @multi = new MultiSelect(@list)
         @multi.reset()
         @multi.includeUntil(@list[3])
 
@@ -124,7 +150,10 @@ describe 'MultiSelect', ->
         expect(@multi.selected).toSelect @list, 3
 
   describe 'exclude', ->
-    beforeEach ->
+    beforeEach inject (MultiSelect) ->
+      @list = buildList()
+      @root = @list[2]
+      @multi = new MultiSelect(@list, @root)
       @item3 = @list[3]
       @item4 = @list[4]
       @multi.include(@item3)
@@ -148,23 +177,26 @@ describe 'MultiSelect', ->
       expect(@multi.exclude @item3).toBe false
 
     describe 'for non-adjacent elements', ->
-      beforeEach ->
-        @item1 = @list[1]
-        @multi.reset(@item1)
-        @multi.include(@item4)
-        @selected = @multi.exclude(@item4, false)
+      beforeEach inject (MultiSelect) ->
+        @list = buildList()
+        @multi = new MultiSelect(@list, @list[1])
+        @multi.include(@list[4], false)
+        @selected = @multi.exclude(@list[4], false)
 
       it 'sets the selected property of the passed element to false', ->
         expect(@item4.selected).toBe false
 
       it 'removes the passed element from selected', ->
-        expect(@multi.selected.indexOf @item4).toEqual -1
+        expect(@multi.selected.indexOf @list[4]).toEqual -1
 
       it 'sets the cursor to the next closest selected element', ->
-        expect(@multi.cursor).toEqual @selected.indexOf(@item1)
+        expect(@multi.cursor).toEqual @selected.indexOf(@list[1])
 
   describe 'reset with item', ->
-    beforeEach ->
+    beforeEach inject (MultiSelect) ->
+      @list = buildList()
+      @item4 = @list[4]
+      @multi = new MultiSelect(@list)
       @item4 = @list[4]
       @multi.reset(@item4)
 
@@ -178,15 +210,25 @@ describe 'MultiSelect', ->
       expect(@item4.selected).toBe true
 
     it 'sets the selected property of all other elements to false', ->
-      expect(@root.selected).toBe false
+      for element in @list
+        expect(element.selected).toBeFalsy() unless element == @item4
 
   describe 'reset without item', ->
+    beforeEach inject (MultiSelect) ->
+      @list = buildList()
+      @root = @list[2]
+      @multi = new MultiSelect(@list, @root)
+
     it 'excludes all items', ->
       expect(@multi.selected).toEqual [undefined, undefined, @root]
       @multi.reset()
       expect(@multi.selected).toEqual []
 
   describe 'moveCursorTo', ->
+    beforeEach inject (MultiSelect) ->
+      @list = buildList()
+      @root = @list[2]
+      @multi = new MultiSelect(@list, @root)
 
     it 'selects element under cursor if it is not selected', ->
       item = @list[3]
@@ -216,47 +258,65 @@ describe 'MultiSelect', ->
       expect(@multi.moveCursorTo(3)).toSelect @list, 3,4,5
 
   describe 'selectPrev', ->
-    it 'selects the last element if no element is selected', ->
-      @multi = new @MultiSelect(@list)
-      expect(@multi.selectPrev()).toSelect @list, 6
+    it 'selects the last element if no element is selected', inject (MultiSelect) ->
+      list = buildList()
+      multi = new MultiSelect(list, @root)
+      expect(multi.selectPrev()).toSelect list, 6
 
-    it 'selects the previous adjacent element', ->
-      @multi.selectPrev()
-      expect(@multi.selected).toEqual [undefined, @list[1]]
+    it 'selects the previous adjacent element', inject (MultiSelect) ->
+      list = buildList()
+      root = list[2]
+      multi = new MultiSelect(list, root)
+      multi.selectPrev()
+      expect(multi.selected).toEqual [undefined, list[1]]
 
-    it 'selects the last element if the current element is the first', ->
-      @multi = new @MultiSelect(@list, @list[0])
-      expect(@multi.selectPrev()).toSelect @list, 6
+    it 'selects the last element if the current element is the first', inject (MultiSelect) ->
+      list = buildList()
+      root = list[0]
+      multi = new MultiSelect(list, root)
+      expect(multi.selectPrev()).toSelect list, 6
 
   describe 'selectNext', ->
-    it 'selects the first element if no element is selected', ->
-      @multi = new @MultiSelect(@list)
-      expect(@multi.selectNext()).toSelect @list, 0
+    it 'selects the first element if no element is selected', inject (MultiSelect) ->
+      list = buildList()
+      multi = new MultiSelect(list)
+      expect(multi.selectNext()).toSelect list, 0
 
-    it 'selects the next adjacent element', ->
-      expect(@multi.selectNext()).toSelect @list, 3
+    it 'selects the next adjacent element', inject (MultiSelect) ->
+      list = buildList()
+      root = list[2]
+      multi = new MultiSelect(list, root)
+      expect(multi.selectNext()).toSelect list, 3
 
-    it 'selects the first element if the current element is last', ->
-      @multi.reset _.last(@list)
-      expect(@multi.selectNext()).toSelect @list, 0
+    it 'selects the first element if the current element is last', inject (MultiSelect) ->
+      list = buildList()
+      root = _.last(list)
+      multi = new MultiSelect(list, root)
+      expect(multi.selectNext()).toSelect list, 0
 
   describe 'moveToPrev', ->
-    it 'expands the selection to include the prev adjacent element', ->
-      expect(@multi.moveToPrev()).toSelect @list, 1, 2
+    it 'expands the selection to include the prev adjacent element', inject (MultiSelect) ->
+      list = buildList()
+      root = list[2]
+      multi = new MultiSelect(list, root)
+      expect(multi.moveToPrev()).toSelect list, 1, 2
 
-    it 'does not wrap around to the top of the list', ->
-      @multi = new @MultiSelect(@list)
-      @multi.selectNext()
-      expect(@multi.moveToPrev()).toSelect @list, 0
+    it 'does not wrap around to the top of the list', inject (MultiSelect) ->
+      list = buildList()
+      multi = new MultiSelect(list, list[0])
+      expect(multi.moveToPrev()).toSelect list, 0
 
   describe 'moveToNext', ->
-    it 'expands the selection to include the next adjacent element', ->
-      @multi.moveToNext()
-      expect(@multi.selected).toSelect @list, 2, 3
+    it 'expands the selection to include the next adjacent element', inject (MultiSelect) ->
+      list = buildList()
+      multi = new MultiSelect(list, list[2])
+      multi.moveToNext()
+      expect(multi.selected).toSelect list, 2, 3
 
-    it 'does not wrap around to the bottom of the list', ->
-      @multi.reset(_.last @list)
-      @multi.moveToNext()
-      expect(@multi.selected).toSelect @list, 6
+    it 'does not wrap around to the bottom of the list', inject (MultiSelect) ->
+      list = buildList()
+      multi = new MultiSelect(list, list[6])
+      multi.moveToNext()
+      expect(multi.selected).toSelect list, 6
 
 

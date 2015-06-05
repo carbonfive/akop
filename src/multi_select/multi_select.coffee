@@ -1,6 +1,10 @@
 class MultiSelect
   constructor: (@list, @root) ->
-    @reset @root if @root
+    @selected = []
+    if @root
+      @reset @root
+    else
+      @include(item, false) for item in @list when item.selected
 
   reset: (@root = null) ->
     _.each @list, (el) -> el.selected = false; return
@@ -11,7 +15,9 @@ class MultiSelect
   include: (el, enforce_adjacency = true) ->
     pos = @_pos(el)
     throw new Error("MultiSelect: Element must be a member of list.") if pos < 0
+    console.log('including', el)
     return false if enforce_adjacency and not @_isAdjacent(pos)
+    console.log('marking selected', el)
     el.selected = true
     @selected[pos] = el
     @cursor = pos
