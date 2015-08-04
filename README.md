@@ -37,11 +37,11 @@ to the ```appFiles``` and ```specFiles``` arrays, respectively. (I'm planning to
 
 ### MultiSelect
 
-MultiSelect provides the familiar file-system style hotkey selection strategy. See [demo/multi-select](https://github.com/jamesBrennan/akop/blob/master/demo/multi-select.html) for a
+MultiSelect provides the familiar file-system style hotkey selection strategy. See [demo/multi-select](demo/multi-select.html) for a
 basic implementation.
 
 ## Filters
 
 ### QueryFilter
 
-The Query filter provides an enhanced interface for filtering collections. See [demo/query-filter](https://github.com/jamesBrennan/akop/blob/master/demo/query-filter.html).
+The Query filter provides an enhanced interface for filtering collections. See [demo/query-filter](demo/query-filter.html).
